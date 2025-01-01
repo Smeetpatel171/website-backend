@@ -17,7 +17,7 @@ mongoose
   
 });
 
-export const app = express(); 
+export default app = express(); 
  
 // Use CORS middleware with all routes for both frontend and admin panel.
 
