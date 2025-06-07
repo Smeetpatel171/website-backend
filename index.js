@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from "cors";
 import mailRoutes from './routes/mail.route.js'
+import uploadRoutes from './routes/upload.route.js';
 dotenv.config();
 
 //database connection
@@ -35,6 +36,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/mail' , mailRoutes)
+app.use('/api/upload', uploadRoutes);
 
 //error handling middleware.
 app.use((err, req, res, next) => {
