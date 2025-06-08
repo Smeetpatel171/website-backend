@@ -23,13 +23,13 @@ export const app = express();
 // Use CORS middleware with all routes for both frontend and admin panel.
 
 app.use(cors({
-  origin: ["https://stellarmind.ai","http://localhost:3000","http://localhost:3001",'https://betasourceadmin.vercel.app',"https://beta-new.vercel.app"],
+  origin: ["https://smeetpatel.tech","https://www.smeetpatel.tech","http://localhost:3000","http://localhost:3001"],
   methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
 
 // Additional CORS middleware for https://betasource.tech at route level.
 app.use('/api', cors({
-  origin: ["https://stellarmind.ai",'http://localhost:3000',,"http://localhost:3001","https://betasourceadmin.vercel.app","https://beta-new.vercel.app"],
+  origin: ["https://smeetpatel.tech","https://www.smeetpatel.tech","http://localhost:3000","http://localhost:3001"],
   methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
 app.use(express.json());
