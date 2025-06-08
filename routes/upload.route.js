@@ -2,47 +2,41 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import supabase from '../utils/supabase.js'; // Adjust the import path as necessary
 
 const router = express.Router();
+const upload = multer({ dest: 'temp/' });
 
-// Ensure the uploads/zips directory exists
-const uploadDir = 'uploads/zips';
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+router.post('/', upload.single('file'), async (req, res) => {
+  const file = req.file;
 
-// Multer storage config
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
+  if (!file || path.extname(file.originalname) !== '.zip') {
+    return res.status(400).json({ success: false, message: 'Only .zip files allowed' });
   }
-});
 
-// Multer instance with .zip file filter
-const upload = multer({
-  storage,
-  fileFilter: function (req, file, cb) {
-    if (path.extname(file.originalname) !== '.zip') {
-      return cb(new Error('Only .zip files are allowed'));
-    }
-    cb(null, true);
-  }
-});
+  const newFilename = `${Date.now()}-${file.originalname}`;
+  const fileBuffer = fs.readFileSync(file.path);
 
-// POST /api/upload
-router.post('/', upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ success: false, message: 'No file uploaded' });
+  const { data, error } = await supabase.storage
+    .from('zips')
+    .upload(newFilename, fileBuffer, {
+      contentType: 'application/zip',
+      upsert: false
+    });
+
+  fs.unlinkSync(file.path); // delete temp file
+
+  if (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Upload failed', error });
   }
+
+  const publicUrl = `https://nexrfifcymcgnuwslimw.supabase.co/storage/v1/object/public/zips/${newFilename}`;
 
   res.status(200).json({
     success: true,
-    message: 'File uploaded successfully',
-    filename: req.file.filename,
-    path: `/uploads/zips/${req.file.filename}`
+    message: 'Uploaded to Supabase!',
+    url: publicUrl
   });
 });
 
